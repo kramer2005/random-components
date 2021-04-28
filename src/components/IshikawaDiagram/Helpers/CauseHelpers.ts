@@ -61,3 +61,26 @@ export const removeCause = (
   const newState = updateChildren({ ...state }, newTopic) as IshikawaRoot
   setState(newState)
 }
+
+/**
+ * Atualiza o nome de uma causa
+ * @param e Evento que disparou a função
+ * @param node Causa a ser editada
+ * @param state Estado do diagrama
+ * @param setState Setter do estado do diagrama
+ * @param nodeName ref renderizado
+ */
+export const updateCauseName = (
+  e:
+    | React.FocusEvent<HTMLHeadingElement>
+    | React.KeyboardEvent<HTMLHeadingElement>,
+  node: IshikawaNode,
+  state: IshikawaRoot,
+  setState: React.Dispatch<React.SetStateAction<IshikawaRoot>>,
+  nodeName: React.RefObject<HTMLHeadingElement>
+): void => {
+  updateCause(node, (e.target as HTMLHeadingElement).innerHTML, state, setState)
+  if (nodeName.current) {
+    nodeName.current.contentEditable = 'false'
+  }
+}

@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import { IshikawaNodeParams } from '../../types'
-import { removeSubCause, updateSubCause } from './IshikawaHelper'
+import { removeSubCause } from './IshikawaHelper'
 import { IconButton, Tooltip } from '@material-ui/core'
-import { Delete, Edit } from '@material-ui/icons'
+import { Delete } from '@material-ui/icons'
+import { updateSubCauseName } from './Helpers/SubCauseHelpers'
+import EditableComponent from './EditableComponent'
 
 const IshikawaSubCause = ({
   node,
@@ -10,21 +12,6 @@ const IshikawaSubCause = ({
   setState
 }: IshikawaNodeParams): JSX.Element => {
   const nodeName = useRef<HTMLHeadingElement>(null)
-  const updateNodeName = (
-    e:
-      | React.FocusEvent<HTMLHeadingElement>
-      | React.KeyboardEvent<HTMLHeadingElement>
-  ) => {
-    updateSubCause(
-      node,
-      (e.target as HTMLHeadingElement).innerHTML,
-      state,
-      setState
-    )
-    if (nodeName.current) {
-      nodeName.current.contentEditable = 'false'
-    }
-  }
 
   useEffect(() => {
     if (nodeName.current) {
@@ -37,26 +24,14 @@ const IshikawaSubCause = ({
       <section>
         <h4
           ref={nodeName}
-          onBlur={e => updateNodeName(e)}
+          onBlur={e => updateSubCauseName(e, node, state, setState, nodeName)}
           onKeyDown={e => {
             if (e.key === 'Enter') {
-              updateNodeName(e)
+              updateSubCauseName(e, node, state, setState, nodeName)
             }
           }}
         ></h4>
-        <Tooltip title="Editar subcausa" arrow>
-          <IconButton
-            onClick={() => {
-              if (nodeName.current) {
-                nodeName.current.contentEditable = 'true'
-                nodeName.current.innerHTML = ''
-                nodeName.current.focus()
-              }
-            }}
-          >
-            <Edit />
-          </IconButton>
-        </Tooltip>
+        <EditableComponent nodeName={nodeName} />
         <Tooltip title="Remover subcausa" arrow>
           <IconButton onClick={() => removeSubCause(node, state, setState)}>
             <Delete />

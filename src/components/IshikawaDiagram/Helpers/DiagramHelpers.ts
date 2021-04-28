@@ -77,3 +77,24 @@ export const updateChildren = (
     )
   }
 }
+
+/**
+ * Atualiza o problema do diagrama
+ * @param e Evento que disparou a função
+ * @param state Estado do diagrama
+ * @param setState Setter do estado do diagrama
+ * @param nodeName ref renderizado
+ */
+export const updateProblema = (
+  e:
+    | React.FocusEvent<HTMLHeadingElement>
+    | React.KeyboardEvent<HTMLHeadingElement>,
+  state: IshikawaRoot,
+  setState: React.Dispatch<React.SetStateAction<IshikawaRoot>>,
+  nodeName: React.RefObject<HTMLHeadingElement>
+): void => {
+  setState({ ...state, value: (e.target as HTMLHeadingElement).innerHTML })
+  if (nodeName.current) {
+    nodeName.current.contentEditable = 'false'
+  }
+}

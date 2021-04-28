@@ -1,3 +1,5 @@
+import React from 'react'
+
 export interface IshikawaNode {
   key: number
   value: string
@@ -17,4 +19,8 @@ export interface IshikawaNodeParams {
   node: IshikawaNode
   state: IshikawaRoot
   setState: React.Dispatch<React.SetStateAction<IshikawaRoot>>
+}
+
+export interface EditableIshikawaComponentParams {
+  nodeName: React.RefObject<HTMLHeadingElement>
 }

@@ -53,3 +53,26 @@ export const removeTopic = (
   const newState = removeNode(node, { ...state }) as IshikawaRoot
   setState(newState)
 }
+
+/**
+ * Atualiza o nome de um tópico
+ * @param e Evento que disparou a função
+ * @param node Tópico a ser editado
+ * @param state Estado do diagrama
+ * @param setState Setter do estado do diagrama
+ * @param nodeName ref renderizado
+ */
+export const updateTopicName = (
+  e:
+    | React.FocusEvent<HTMLHeadingElement>
+    | React.KeyboardEvent<HTMLHeadingElement>,
+  node: IshikawaNode,
+  state: IshikawaRoot,
+  setState: React.Dispatch<React.SetStateAction<IshikawaRoot>>,
+  nodeName: React.RefObject<HTMLHeadingElement>
+): void => {
+  updateTopic(node, (e.target as HTMLHeadingElement).innerHTML, state, setState)
+  if (nodeName.current) {
+    nodeName.current.contentEditable = 'false'
+  }
+}

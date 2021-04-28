@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 import { IshikawaNodeParams } from '../../types'
-import { createCause, removeTopic, updateTopic } from './IshikawaHelper'
+import { createCause, removeTopic } from './IshikawaHelper'
 import IshikawaCause from './IshikawaCause'
 import { IconButton, Tooltip } from '@material-ui/core'
-import { Add, Delete, Edit } from '@material-ui/icons'
+import { Add, Delete } from '@material-ui/icons'
+import { updateTopicName } from './Helpers/TopicHelpers'
+import EditableComponent from './EditableComponent'
 
 const IshikawaTopic = ({
   node,
@@ -11,21 +13,6 @@ const IshikawaTopic = ({
   setState
 }: IshikawaNodeParams): JSX.Element => {
   const nodeName = useRef<HTMLHeadingElement>(null)
-  const updateNodeName = (
-    e:
-      | React.FocusEvent<HTMLHeadingElement>
-      | React.KeyboardEvent<HTMLHeadingElement>
-  ) => {
-    updateTopic(
-      node,
-      (e.target as HTMLHeadingElement).innerHTML,
-      state,
-      setState
-    )
-    if (nodeName.current) {
-      nodeName.current.contentEditable = 'false'
-    }
-  }
 
   useEffect(() => {
     if (nodeName.current) {
@@ -38,26 +25,14 @@ const IshikawaTopic = ({
       <section>
         <h2
           ref={nodeName}
-          onBlur={e => updateNodeName(e)}
+          onBlur={e => updateTopicName(e, node, state, setState, nodeName)}
           onKeyDown={e => {
             if (e.key === 'Enter') {
-              updateNodeName(e)
+              updateTopicName(e, node, state, setState, nodeName)
             }
           }}
         ></h2>
-        <Tooltip title="Editar subcausa" arrow>
-          <IconButton
-            onClick={() => {
-              if (nodeName.current) {
-                nodeName.current.contentEditable = 'true'
-                nodeName.current.innerHTML = ''
-                nodeName.current.focus()
-              }
-            }}
-          >
-            <Edit />
-          </IconButton>
-        </Tooltip>
+        <EditableComponent nodeName={nodeName} />
         <Tooltip title="Remover tópico" arrow>
           <IconButton onClick={() => removeTopic(node, state, setState)}>
             <Delete />

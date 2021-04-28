@@ -3,23 +3,15 @@ import { IshikawaRoot } from '../../types'
 import { createTopic } from './IshikawaHelper'
 import IshikawaTopic from './IshikawaTopic'
 import { IconButton, Tooltip } from '@material-ui/core'
-import { Add, Edit } from '@material-ui/icons'
+import { Add } from '@material-ui/icons'
 import defaultState from './DefaultDiagram'
+import EditableComponent from './EditableComponent'
+import { updateProblema } from './Helpers/DiagramHelpers'
 
 const IshikawaDiagram = (): JSX.Element => {
   const [state, setState] = useState<IshikawaRoot>(defaultState)
 
   const nodeName = useRef<HTMLHeadingElement>(null)
-  const updateNodeName = (
-    e:
-      | React.FocusEvent<HTMLHeadingElement>
-      | React.KeyboardEvent<HTMLHeadingElement>
-  ) => {
-    setState({ ...state, value: (e.target as HTMLHeadingElement).innerHTML })
-    if (nodeName.current) {
-      nodeName.current.contentEditable = 'false'
-    }
-  }
 
   useEffect(() => {
     createTopic('Método', state, setState)
@@ -41,26 +33,14 @@ const IshikawaDiagram = (): JSX.Element => {
       <section>
         <h1
           ref={nodeName}
-          onBlur={e => updateNodeName(e)}
+          onBlur={e => updateProblema(e, state, setState, nodeName)}
           onKeyDown={e => {
             if (e.key === 'Enter') {
-              updateNodeName(e)
+              updateProblema(e, state, setState, nodeName)
             }
           }}
         ></h1>
-        <Tooltip title="Editar subcausa" arrow>
-          <IconButton
-            onClick={() => {
-              if (nodeName.current) {
-                nodeName.current.contentEditable = 'true'
-                nodeName.current.innerHTML = ''
-                nodeName.current.focus()
-              }
-            }}
-          >
-            <Edit />
-          </IconButton>
-        </Tooltip>
+        <EditableComponent nodeName={nodeName} />
         {state.children.length < 6 ? (
           <Tooltip title="Criar tópico" arrow>
             <IconButton
