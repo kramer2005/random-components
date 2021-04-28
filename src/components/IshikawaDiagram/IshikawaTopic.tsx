@@ -32,10 +32,11 @@ const IshikawaTopic = ({
       nodeName.current.innerHTML = node.value
     }
   }, [nodeName.current])
+
   return (
     <div className="topico">
       <section>
-        <h1
+        <h2
           ref={nodeName}
           onBlur={e => updateNodeName(e)}
           onKeyDown={e => {
@@ -43,7 +44,7 @@ const IshikawaTopic = ({
               updateNodeName(e)
             }
           }}
-        ></h1>
+        ></h2>
         <Tooltip title="Editar subcausa" arrow>
           <IconButton
             onClick={() => {

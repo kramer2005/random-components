@@ -36,7 +36,7 @@ const IshikawaCause = ({
   return (
     <div className="causa">
       <section>
-        <h2
+        <h3
           ref={nodeName}
           onBlur={e => updateNodeName(e)}
           onKeyDown={e => {
@@ -44,7 +44,7 @@ const IshikawaCause = ({
               updateNodeName(e)
             }
           }}
-        ></h2>
+        ></h3>
         <Tooltip title="Editar subcausa" arrow>
           <IconButton
             onClick={() => {

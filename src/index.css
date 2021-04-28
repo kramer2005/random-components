@@ -12,7 +12,7 @@ code {
     monospace;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
   font-weight: normal;
 }
 
@@ -20,10 +20,18 @@ section {
   display: flex;
 }
 
-h2 {
+h1 {
   margin-left: 2em;
 }
 
-h3 {
+h2 {
   margin-left: 4em;
+}
+
+h3 {
+  margin-left: 6em;
+}
+
+h4 {
+  margin-left: 8em;
 }
