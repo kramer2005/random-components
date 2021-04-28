@@ -12,11 +12,13 @@ export const createTopic = (
   state: IshikawaRoot,
   setState: React.Dispatch<React.SetStateAction<IshikawaRoot>>
 ): void => {
-  const newState = {
-    ...addNode(value, { ...state }, state.actualId),
-    actualId: state.actualId + 1
+  if (state.children.length < 6) {
+    const newState = {
+      ...addNode(value, { ...state }, state.actualId),
+      actualId: state.actualId + 1
+    }
+    setState(newState)
   }
-  setState(newState)
 }
 
 /**

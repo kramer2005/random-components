@@ -4,15 +4,10 @@ import { createTopic } from './IshikawaHelper'
 import IshikawaTopic from './IshikawaTopic'
 import { IconButton, Tooltip } from '@material-ui/core'
 import { Add, Edit } from '@material-ui/icons'
+import defaultState from './DefaultDiagram'
 
 const IshikawaDiagram = (): JSX.Element => {
-  const [state, setState] = useState<IshikawaRoot>({
-    key: 0,
-    children: [],
-    parent: null,
-    value: 'Efeito',
-    actualId: 1
-  })
+  const [state, setState] = useState<IshikawaRoot>(defaultState)
 
   const nodeName = useRef<HTMLHeadingElement>(null)
   const updateNodeName = (
@@ -25,6 +20,15 @@ const IshikawaDiagram = (): JSX.Element => {
       nodeName.current.contentEditable = 'false'
     }
   }
+
+  useEffect(() => {
+    createTopic('Método', state, setState)
+    createTopic('Máquina', state, setState)
+    createTopic('Medida', state, setState)
+    createTopic('Meio Ambiente', state, setState)
+    createTopic('Mão de Obra', state, setState)
+    createTopic('Material', state, setState)
+  }, [])
 
   useEffect(() => {
     if (nodeName.current) {
@@ -57,15 +61,15 @@ const IshikawaDiagram = (): JSX.Element => {
             <Edit />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Criar tópico" arrow>
-          <IconButton
-            onClick={() =>
-              createTopic(Math.random().toString(), state, setState)
-            }
-          >
-            <Add />
-          </IconButton>
-        </Tooltip>
+        {state.children.length < 6 ? (
+          <Tooltip title="Criar tópico" arrow>
+            <IconButton
+              onClick={() => createTopic('Novo tópico', state, setState)}
+            >
+              <Add />
+            </IconButton>
+          </Tooltip>
+        ) : null}
       </section>
       {state?.children?.map(el => (
         <div key={el.key}>

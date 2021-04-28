@@ -12,11 +12,8 @@ export const addNode = (
   key: number
 ): IshikawaNode => {
   const newParent = { ...parent }
-  if (newParent?.children.find(el => el.value === value)) {
-    throw new Error('NÓS NÃO PODEM TER NOMES REPETIDOS')
-  }
   newParent.children?.push({
-    value: key.toString(),
+    value: value,
     children: [],
     parent: parent,
     key

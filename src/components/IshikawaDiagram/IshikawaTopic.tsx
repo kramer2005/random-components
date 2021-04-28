@@ -65,9 +65,7 @@ const IshikawaTopic = ({
         </Tooltip>
         <Tooltip title="Criar causa" arrow>
           <IconButton
-            onClick={() =>
-              createCause(Math.random().toString(), node, state, setState)
-            }
+            onClick={() => createCause('Nova causa', node, state, setState)}
           >
             <Add />
           </IconButton>

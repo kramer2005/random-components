@@ -66,7 +66,7 @@ const IshikawaCause = ({
         <Tooltip title="Criar Subcausa" arrow>
           <IconButton
             onClick={() =>
-              createSubCause(Math.random().toString(), node, state, setState)
+              createSubCause('Nova subcausa', node, state, setState)
             }
           >
             <Add />
