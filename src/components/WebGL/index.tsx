@@ -16,8 +16,14 @@ const WebGL = (): JSX.Element => {
 
   return (
     <React.Fragment>
-      <p ref={fps} style={{ position: 'absolute', top: 0, left: 0 }}></p>
-      <canvas ref={canvasElement} style={{ width: '100vw', height: '100vh' }} />
+      <p
+        ref={fps}
+        style={{ position: 'absolute', top: 0, left: 0, color: 'white' }}
+      ></p>
+      <canvas
+        ref={canvasElement}
+        style={{ width: '100vw', height: '100vh', background: '#111' }}
+      />
     </React.Fragment>
   )
 }
