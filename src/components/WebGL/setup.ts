@@ -8,13 +8,13 @@ let mvMatrix: mat4
 let mvpMatrix: mat4
 let fpsParagraph: HTMLParagraphElement
 let lastTime = 0
-const totalPoints = 1000
+const totalPoints = 10000
 
-const randomColor = () => [Math.random(), Math.random(), Math.random()]
+// const randomColor = () => [Math.random(), Math.random(), Math.random()]
 
 const render = (time: number) => {
   requestAnimationFrame(render)
-  mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 3 / 60)
+  mat4.rotateY(modelMatrix, modelMatrix, Math.PI / 3 / 60)
 
   mat4.multiply(mvMatrix, viewMatrix, modelMatrix)
   mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix)
@@ -32,7 +32,6 @@ const spherePointCloud = (pointCount: number) => {
     const r = () => Math.random() - 0.5
 
     const inputPoint = [r(), r(), r()] as ReadonlyVec3
-
     const outputPoint = vec3.normalize(vec3.create(), inputPoint)
 
     points.push(...outputPoint)
@@ -50,17 +49,19 @@ export default (canvas: HTMLCanvasElement, fps: HTMLParagraphElement): void => {
     throw new Error('Unsupported WebGL')
   }
 
+  gl.viewport(0, 0, canvas.width, canvas.height)
+
   // Create Vertex data
   const vertexData = spherePointCloud(totalPoints)
 
-  // Create color data
-  const colorData = []
-  for (let face = 0; face < 6; face++) {
-    const faceColor = randomColor()
-    for (let vertex = 0; vertex < 6; vertex++) {
-      colorData.push(...faceColor)
-    }
-  }
+  // // Create color data
+  // const colorData = []
+  // for (let face = 0; face < 6; face++) {
+  //   const faceColor = randomColor()
+  //   for (let vertex = 0; vertex < 6; vertex++) {
+  //     colorData.push(...faceColor)
+  //   }
+  // }
 
   // Create vertex buffer
   const vertexBuffer = gl.createBuffer()
@@ -88,6 +89,7 @@ export default (canvas: HTMLCanvasElement, fps: HTMLParagraphElement): void => {
       void main() {
         vColor = vec3(position.xy, 1);
         gl_Position = matrix * vec4(position, 1);
+        gl_PointSize = 1.0;
       }
     `
   )
