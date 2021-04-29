@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import setup from './setupBox'
+import setup from './setupPointCloud'
 
 const WebGL = (): JSX.Element => {
   const canvasElement = useRef<HTMLCanvasElement>(null)
