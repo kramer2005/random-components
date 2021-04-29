@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import setup from './setup'
+import setup from './setupBox'
 
 const WebGL = (): JSX.Element => {
   const canvasElement = useRef<HTMLCanvasElement>(null)
@@ -20,6 +20,9 @@ const WebGL = (): JSX.Element => {
         ref={fps}
         style={{ position: 'absolute', top: 0, left: 0, color: 'white' }}
       ></p>
+      <h1 style={{ position: 'absolute', color: 'white', margin: '0' }}>
+        WebGL!
+      </h1>
       <canvas
         ref={canvasElement}
         style={{ width: '100vw', height: '100vh', background: '#111' }}
