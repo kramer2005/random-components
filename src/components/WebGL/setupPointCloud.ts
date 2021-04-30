@@ -8,10 +8,46 @@ let mvMatrix: mat4
 let mvpMatrix: mat4
 let fpsParagraph: HTMLParagraphElement
 let lastTime = 0
+let animationCount = 0
+let actualFunction: () => void
+let distance = 1
 
-const totalPoints = 50000
+const totalPoints = 10000
 
 // const randomColor = () => [Math.random(), Math.random(), Math.random()]
+
+export const aproximateCamera = (): void => {
+  actualFunction = () => {
+    if (distance > 1) {
+      mat4.translate(viewMatrix, viewMatrix, [0, 0, 0.1])
+      distance -= 0.1
+    }
+  }
+  animationCount = 10
+}
+
+export const distanceCamera = (): void => {
+  actualFunction = () => {
+    if (distance < 5) {
+      mat4.translate(viewMatrix, viewMatrix, [0, 0, -0.1])
+      distance += 0.1
+    }
+  }
+  animationCount = 10
+}
+
+export const resize = (canvas: HTMLCanvasElement): void => {
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+  gl.viewport(0, 0, canvas.width, canvas.height)
+  mat4.perspective(
+    projectionMatrix,
+    (70 * Math.PI) / 180,
+    canvas.width / canvas.height,
+    1e-4,
+    Infinity
+  )
+}
 
 const render = (time: number) => {
   requestAnimationFrame(render)
@@ -20,6 +56,10 @@ const render = (time: number) => {
 
   mat4.multiply(mvMatrix, viewMatrix, modelMatrix)
   mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix)
+
+  if (animationCount-- > 0) {
+    actualFunction()
+  }
 
   gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix)
   gl.drawArrays(gl.POINTS, 0, totalPoints)
@@ -41,7 +81,10 @@ const spherePointCloud = (pointCount: number) => {
   return points
 }
 
-export default (canvas: HTMLCanvasElement, fps: HTMLParagraphElement): void => {
+export default async (
+  canvas: HTMLCanvasElement,
+  fps: HTMLParagraphElement
+): Promise<void> => {
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
   fpsParagraph = fps
@@ -56,60 +99,21 @@ export default (canvas: HTMLCanvasElement, fps: HTMLParagraphElement): void => {
   // Create Vertex data
   const vertexData = spherePointCloud(totalPoints)
 
-  // // Create color data
-  // const colorData = []
-  // for (let face = 0; face < 6; face++) {
-  //   const faceColor = randomColor()
-  //   for (let vertex = 0; vertex < 6; vertex++) {
-  //     colorData.push(...faceColor)
-  //   }
-  // }
-
   // Create vertex buffer
   const vertexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW)
 
-  // Create color buffer
-  // const colorBuffer = gl.createBuffer()
-  // gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
-  // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorData), gl.STATIC_DRAW)
-
   // Create Vertex Shader
+  const vertexShaderFile = await fetch('/shaders/pointClouds/vertex.glsl')
   const vertexShader = gl.createShader(gl.VERTEX_SHADER) as WebGLShader
-  gl.shaderSource(
-    vertexShader,
-    `
-      precision mediump float;
-
-      attribute vec3 position;
-      attribute vec3 color;
-      varying vec3 vColor;
-
-      uniform mat4 matrix;
-
-      void main() {
-        vColor = vec3(position.xy, 1);
-        gl_Position = matrix * vec4(position, 1);
-        gl_PointSize = 1.0;
-      }
-    `
-  )
+  gl.shaderSource(vertexShader, await vertexShaderFile.text())
   gl.compileShader(vertexShader)
 
   // Create Fragment Shader
+  const fragmentShaderFile = await fetch('/shaders/pointClouds/fragment.glsl')
   const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER) as WebGLShader
-  gl.shaderSource(
-    fragmentShader,
-    `
-      precision mediump float;
-      varying vec3 vColor;
-      
-      void main() {
-        gl_FragColor = vec4(vColor, 1);
-      }
-    `
-  )
+  gl.shaderSource(fragmentShader, await fragmentShaderFile.text())
   gl.compileShader(fragmentShader)
 
   // Create program
@@ -125,12 +129,6 @@ export default (canvas: HTMLCanvasElement, fps: HTMLParagraphElement): void => {
   gl.enableVertexAttribArray(positionLocation)
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
   gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0)
-
-  // Enable color attributes
-  // const colorLocation = gl.getAttribLocation(program, 'color')
-  // gl.enableVertexAttribArray(colorLocation)
-  // gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer)
-  // gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0)
 
   // Draw
   gl.useProgram(program)
@@ -158,7 +156,7 @@ export default (canvas: HTMLCanvasElement, fps: HTMLParagraphElement): void => {
   // Operations in matrix
   mat4.translate(modelMatrix, modelMatrix, [0, 0, 0])
   mat4.translate(projectionMatrix, projectionMatrix, [0, 0, 0])
-  mat4.translate(viewMatrix, viewMatrix, [0, 0, 1])
+  mat4.translate(viewMatrix, viewMatrix, [0, 0, distance])
   mat4.invert(viewMatrix, viewMatrix)
 
   render(0)

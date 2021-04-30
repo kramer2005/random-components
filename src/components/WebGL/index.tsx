@@ -1,5 +1,9 @@
 import React, { useRef, useEffect } from 'react'
-import setup from './setupPointCloud'
+import setup, {
+  aproximateCamera,
+  distanceCamera,
+  resize
+} from './setupPointCloud'
 
 const WebGL = (): JSX.Element => {
   const canvasElement = useRef<HTMLCanvasElement>(null)
@@ -11,7 +15,20 @@ const WebGL = (): JSX.Element => {
       return
     }
 
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp') {
+        aproximateCamera()
+      } else if (e.key === 'ArrowDown') {
+        distanceCamera()
+      }
+    })
+
+    window.addEventListener('resize', () => resize(canvas))
+
     setup(canvas, fps.current)
+    return () => {
+      canvas.getContext('webgl')?.flush()
+    }
   }, [canvasElement.current])
 
   return (
@@ -25,7 +42,7 @@ const WebGL = (): JSX.Element => {
       </h1>
       <canvas
         ref={canvasElement}
-        style={{ width: '100vw', height: '100vh', background: '#111' }}
+        style={{ width: '100vw', height: '100vh', background: '#000' }}
       />
     </React.Fragment>
   )
