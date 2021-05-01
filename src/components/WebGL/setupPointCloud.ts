@@ -1,4 +1,5 @@
 import { mat4, ReadonlyVec3, vec3 } from 'gl-matrix'
+import { loadText, resizeCanvas } from './Helpers'
 let gl: WebGLRenderingContext
 let uniformLocations: { matrix: WebGLUniformLocation | null }
 let modelMatrix: mat4
@@ -37,16 +38,7 @@ export const distanceCamera = (): void => {
 }
 
 export const resize = (canvas: HTMLCanvasElement): void => {
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-  gl.viewport(0, 0, canvas.width, canvas.height)
-  mat4.perspective(
-    projectionMatrix,
-    (70 * Math.PI) / 180,
-    canvas.width / canvas.height,
-    1e-4,
-    Infinity
-  )
+  resizeCanvas(canvas, gl, projectionMatrix)
 }
 
 const render = (time: number) => {
@@ -105,15 +97,19 @@ export default async (
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW)
 
   // Create Vertex Shader
-  const vertexShaderFile = await fetch('/shaders/pointClouds/vertex.glsl')
   const vertexShader = gl.createShader(gl.VERTEX_SHADER) as WebGLShader
-  gl.shaderSource(vertexShader, await vertexShaderFile.text())
+  gl.shaderSource(
+    vertexShader,
+    await loadText('/shaders/pointClouds/vertex.glsl')
+  )
   gl.compileShader(vertexShader)
 
   // Create Fragment Shader
-  const fragmentShaderFile = await fetch('/shaders/pointClouds/fragment.glsl')
   const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER) as WebGLShader
-  gl.shaderSource(fragmentShader, await fragmentShaderFile.text())
+  gl.shaderSource(
+    fragmentShader,
+    await loadText('/shaders/pointClouds/fragment.glsl')
+  )
   gl.compileShader(fragmentShader)
 
   // Create program

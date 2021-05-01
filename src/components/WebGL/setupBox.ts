@@ -1,4 +1,5 @@
 import { mat4 } from 'gl-matrix'
+import { resizeCanvas } from './Helpers'
 let gl: WebGLRenderingContext
 let uniformLocations: { matrix: WebGLUniformLocation | null }
 let modelMatrix: mat4
@@ -10,6 +11,10 @@ let fpsParagraph: HTMLParagraphElement
 let lastTime = 0
 
 const randomColor = () => [Math.random(), Math.random(), Math.random()]
+
+export const resize = (canvas: HTMLCanvasElement): void => {
+  resizeCanvas(canvas, gl, projectionMatrix)
+}
 
 const render = (time: number) => {
   requestAnimationFrame(render)

@@ -1,11 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-// import IshikawaDiagram from './components/IshikawaDiagram/IshikawaDiagram'
 import './index.css'
 import reportWebVitals from './reportWebVitals'
-import WebGL from './components/WebGL'
+import WebGLScene from './components/WebGLScene'
 
-ReactDOM.render(<WebGL />, document.getElementById('root'))
+ReactDOM.render(<WebGLScene />, document.getElementById('root'))
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
