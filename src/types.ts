@@ -18,6 +18,7 @@ export interface IshikawaRoot extends IshikawaNode {
 export interface IshikawaNodeParams {
   node: IshikawaNode
   state: IshikawaRoot
+  index: number
   setState: React.Dispatch<React.SetStateAction<IshikawaRoot>>
 }
 

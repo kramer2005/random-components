@@ -1,248 +1,181 @@
 import { mat4 } from 'gl-matrix'
+import { RenderingComponent } from '../types'
+import vertexData from './vertexData.json'
 
-class Box {
-  private gl
+class Box implements RenderingComponent {
+  _gl: WebGLRenderingContext
 
-  private vertexBuffer: WebGLBuffer
-  private colorBuffer: WebGLBuffer
-
-  private vertexShader: WebGLShader
-  private fragmentShader: WebGLShader
-
-  private vertexData = [
-    // Front
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    0.5,
-    0.5,
-    0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.5,
-
-    // Left
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-
-    // Back
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-
-    // Right
-    0.5,
-    0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    -0.5,
-
-    // Top
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    -0.5,
-
-    // Bottom
-    0.5,
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    -0.5,
-    -0.5
-  ]
-
-  private colorData: number[] = []
-  constructor(
-    gl: WebGLRenderingContext,
-    offsetX: number,
-    projectionMatrix: mat4,
-    viewMatrix: mat4
-  ) {
-    this.gl = gl
-    // Color data
-    for (let face = 0; face < 6; face++) {
-      const faceColor = Box.randomColor()
-      for (let vertex = 0; vertex < 6; vertex++) {
-        this.colorData.push(...faceColor)
-      }
-    }
-
-    // Vertex buffer
-    this.vertexBuffer = gl.createBuffer() as WebGLBuffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(this.vertexData),
-      gl.STATIC_DRAW
-    )
-
-    // Color buffer
-    this.colorBuffer = gl.createBuffer() as WebGLBuffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer)
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array(this.colorData),
-      gl.STATIC_DRAW
-    )
-
-    // Vertex Shader
-    this.vertexShader = gl.createShader(gl.VERTEX_SHADER) as WebGLShader
-    gl.shaderSource(
-      this.vertexShader,
-      `
-      precision mediump float;
-
-      attribute vec3 position;
-      attribute vec3 color;
-      varying vec3 vColor;
-
-      uniform mat4 matrix;
-
-      void main() {
-        vColor = color;
-        gl_Position = matrix * vec4(position, 1);
-      }
-    `
-    )
-    gl.compileShader(this.vertexShader)
-
-    // Create Fragment Shader
-    this.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER) as WebGLShader
-    gl.shaderSource(
-      this.fragmentShader,
-      `
-      precision mediump float;
-      varying vec3 vColor;
-      
-      void main() {
-        gl_FragColor = vec4(vColor, 1);
-      }
-    `
-    )
-    gl.compileShader(this.fragmentShader)
-
-    const program = gl.createProgram() as WebGLProgram
-
-    // Attach shaders to program
-    gl.attachShader(program, this.vertexShader)
-    gl.attachShader(program, this.fragmentShader)
-    gl.linkProgram(program)
-
-    // Enable vertex attributes
-    const positionLocation = gl.getAttribLocation(program, 'position')
-    gl.enableVertexAttribArray(positionLocation)
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer)
-    gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0)
-
-    // Enable color attributes
-    const colorLocation = gl.getAttribLocation(program, 'color')
-    gl.enableVertexAttribArray(colorLocation)
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer)
-    gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0)
-
-    // Draw
-    gl.useProgram(program)
-    gl.enable(gl.DEPTH_TEST)
-
-    const matrix = gl.getUniformLocation(program, 'matrix')
-    const modelMatrix = mat4.create()
-    const mvMatrix = mat4.create()
-    const mvpMatrix = mat4.create()
-    mat4.translate(modelMatrix, modelMatrix, [offsetX, 0, 0])
-
-    mat4.multiply(mvMatrix, viewMatrix, modelMatrix)
-    mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix)
-
-    gl.uniformMatrix4fv(matrix, false, mvpMatrix)
-
-    gl.drawArrays(gl.TRIANGLES, 0, 36)
+  uniformLocations: {
+    matrix: WebGLUniformLocation | null
+    textureID: WebGLUniformLocation | null
   }
 
-  static randomColor = (): number[] => [
-    Math.random(),
-    Math.random(),
-    Math.random()
+  modelMatrix = mat4.create()
+  mvMatrix = mat4.create()
+  mvpMatrix = mat4.create()
+  program: WebGLProgram
+  uvData = [
+    1,
+    1, // top right
+    1,
+    0, // bottom right
+    0,
+    1, // top left
+
+    0,
+    1, // top left
+    1,
+    0, // bottom right
+    0,
+    0 // bottom left
   ]
+
+  private randomColor = () => [Math.random(), Math.random(), Math.random()]
+
+  constructor(gl: WebGLRenderingContext) {
+    this._gl = gl
+    this.program = gl.createProgram() as WebGLProgram
+
+    this.loadTexture()
+
+    gl.attachShader(this.program, this.vertexShader())
+    gl.attachShader(this.program, this.fragmentShader())
+    gl.linkProgram(this.program)
+
+    const positionLocation = gl.getAttribLocation(this.program, 'position')
+    gl.enableVertexAttribArray(positionLocation)
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer())
+    gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0)
+
+    const uvLocation = gl.getAttribLocation(this.program, 'uv')
+    gl.enableVertexAttribArray(uvLocation)
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer())
+    gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0)
+
+    gl.useProgram(this.program)
+    gl.enable(gl.DEPTH_TEST)
+
+    this.uniformLocations = {
+      matrix: gl.getUniformLocation(this.program, 'matrix'),
+      textureID: gl.getUniformLocation(this.program, 'textureID')
+    }
+
+    gl.uniform1i(this.uniformLocations.textureID, 0)
+  }
+
+  loadTexture(): WebGLTexture {
+    const texture = this._gl.createTexture() as WebGLTexture
+    const image = new Image()
+
+    image.onload = () => {
+      this._gl.bindTexture(this._gl.TEXTURE_2D, texture)
+
+      this._gl.texImage2D(
+        this._gl.TEXTURE_2D,
+        0,
+        this._gl.RGBA,
+        this._gl.RGBA,
+        this._gl.UNSIGNED_BYTE,
+        image
+      )
+
+      this._gl.generateMipmap(this._gl.TEXTURE_2D)
+    }
+
+    image.src = 'sprites/brick.png'
+
+    this._gl.activeTexture(this._gl.TEXTURE0)
+    this._gl.bindTexture(this._gl.TEXTURE_2D, texture)
+
+    this.loadTexture = () => texture
+
+    return texture
+  }
+
+  vertexBuffer(): WebGLBuffer {
+    const vertexBuffer = this._gl.createBuffer() as WebGLBuffer
+    this._gl.bindBuffer(this._gl.ARRAY_BUFFER, vertexBuffer)
+    this._gl.bufferData(
+      this._gl.ARRAY_BUFFER,
+      new Float32Array(vertexData),
+      this._gl.STATIC_DRAW
+    )
+
+    return vertexBuffer
+  }
+
+  vertexShader(): WebGLShader {
+    const vertexShader = this._gl.createShader(
+      this._gl.VERTEX_SHADER
+    ) as WebGLShader
+    this._gl.shaderSource(
+      vertexShader,
+      `
+      precision mediump float;
+      attribute vec3 position;
+      attribute vec2 uv;
+      varying vec2 vUV;
+      uniform mat4 matrix;
+      void main() {
+          vUV = uv;
+          gl_Position = matrix * vec4(position, 1);
+      }
+    `
+    )
+    this._gl.compileShader(vertexShader)
+
+    return vertexShader
+  }
+
+  fragmentShader(): WebGLShader {
+    const fragmentShader = this._gl.createShader(
+      this._gl.FRAGMENT_SHADER
+    ) as WebGLShader
+    this._gl.shaderSource(
+      fragmentShader,
+      `
+      precision mediump float;
+      varying vec2 vUV;
+      uniform sampler2D textureID;
+      void main() {
+          gl_FragColor = texture2D(textureID, vUV);
+      }
+    `
+    )
+    this._gl.compileShader(fragmentShader)
+
+    return fragmentShader
+  }
+
+  uvBuffer(): WebGLBuffer {
+    const uvBuffer = this._gl.createBuffer() as WebGLBuffer
+    this._gl.bindBuffer(this._gl.ARRAY_BUFFER, uvBuffer)
+    this._gl.bufferData(
+      this._gl.ARRAY_BUFFER,
+      new Float32Array(this.uvData),
+      this._gl.STATIC_DRAW
+    )
+
+    return uvBuffer
+  }
+
+  update(viewMatrix: mat4, projectionMatrix: mat4): void {
+    this._gl.useProgram(this.program)
+
+    mat4.translate(this.modelMatrix, this.modelMatrix, [0.1, 0, 0])
+
+    mat4.multiply(this.mvMatrix, viewMatrix, this.modelMatrix)
+    mat4.multiply(this.mvpMatrix, projectionMatrix, this.mvMatrix)
+
+    this._gl.useProgram(this.program)
+    this._gl.uniformMatrix4fv(
+      this.uniformLocations.matrix,
+      false,
+      this.mvpMatrix
+    )
+
+    this._gl.drawArrays(this._gl.TRIANGLES, 0, 6)
+  }
 }
 
 export default Box

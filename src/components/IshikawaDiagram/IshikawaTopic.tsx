@@ -10,7 +10,8 @@ import EditableComponent from './EditableComponent'
 const IshikawaTopic = ({
   node,
   state,
-  setState
+  setState,
+  index
 }: IshikawaNodeParams): JSX.Element => {
   const nodeName = useRef<HTMLHeadingElement>(null)
 
@@ -21,7 +22,15 @@ const IshikawaTopic = ({
   }, [nodeName.current])
 
   return (
-    <div className="topico">
+    <div
+      className="topico"
+      style={{
+        position: 'absolute',
+        top: index % 2 === 0 ? '0' : 'auto',
+        bottom: index % 2 === 1 ? '0' : 'auto',
+        left: ((index - (index % 2)) / 2 - 1) * 300
+      }}
+    >
       <section>
         <h2
           ref={nodeName}
@@ -48,9 +57,14 @@ const IshikawaTopic = ({
       </section>
 
       <div>
-        {node.children.map(el => (
+        {node.children.map((el, i) => (
           <div key={el.key}>
-            <IshikawaCause node={el} state={state} setState={setState} />
+            <IshikawaCause
+              index={i}
+              node={el}
+              state={state}
+              setState={setState}
+            />
           </div>
         ))}
       </div>

@@ -29,8 +29,19 @@ const IshikawaDiagram = (): JSX.Element => {
   }, [nodeName.current])
 
   return (
-    <div>
-      <section>
+    <div style={{ position: 'relative', width: '800px', height: '300px' }}>
+      <section
+        style={{
+          position: 'absolute',
+          width: '100%',
+          right: 0,
+          top: 'calc(50% - 1rem)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <hr style={{ flex: '1', height: 0 }} />
         <h1
           ref={nodeName}
           onBlur={e => updateProblema(e, state, setState, nodeName)}
@@ -39,6 +50,7 @@ const IshikawaDiagram = (): JSX.Element => {
               updateProblema(e, state, setState, nodeName)
             }
           }}
+          style={{ margin: '0 0 0 5px', fontSize: '2rem' }}
         ></h1>
         <EditableComponent nodeName={nodeName} />
         {state.children.length < 6 ? (
@@ -51,9 +63,14 @@ const IshikawaDiagram = (): JSX.Element => {
           </Tooltip>
         ) : null}
       </section>
-      {state?.children?.map(el => (
+      {state?.children?.map((el, i) => (
         <div key={el.key}>
-          <IshikawaTopic node={el} state={state} setState={setState} />
+          <IshikawaTopic
+            node={el}
+            index={i}
+            state={state}
+            setState={setState}
+          />
         </div>
       ))}
     </div>

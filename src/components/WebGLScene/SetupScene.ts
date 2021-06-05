@@ -1,13 +1,24 @@
-import { mat4 } from 'gl-matrix'
 import Box from './Components/Box'
+import { mat4 } from 'gl-matrix'
+import { RenderingComponent } from './types'
 
 let fpsElement: HTMLParagraphElement
 let lastTime = 0
+const elements: RenderingComponent[] = []
 const projectionMatrix = mat4.create()
 const viewMatrix = mat4.create()
+let count = 0
+
+let gl: WebGLRenderingContext
 
 const animate = (time: number): void => {
   requestAnimationFrame(animate)
+
+  if (count++ % 10 === 0) {
+    elements.push(new Box(gl))
+  }
+
+  elements.forEach(el => el.update(viewMatrix, projectionMatrix))
   fpsElement.innerHTML = Math.round(1000 / (time - lastTime)).toString()
   lastTime = time
 }
@@ -18,7 +29,7 @@ const SetupScene = (
 ): void => {
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
-  const gl = canvas.getContext('webgl')
+  gl = canvas.getContext('webgl') as WebGLRenderingContext
   fpsElement = fps
 
   if (!gl) {
@@ -36,9 +47,7 @@ const SetupScene = (
 
   mat4.translate(viewMatrix, viewMatrix, [0, 0, 5])
   mat4.invert(viewMatrix, viewMatrix)
-
-  const box = new Box(gl, 2, projectionMatrix, viewMatrix)
-  const box2 = new Box(gl, -2, projectionMatrix, viewMatrix)
+  elements.push(new Box(gl))
 
   animate(0)
 }

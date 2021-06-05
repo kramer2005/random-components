@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react'
 import setup, {
-  // aproximateCamera,
-  // distanceCamera,
+  aproximateCamera,
+  distanceCamera,
   resize
-} from './setupBox'
+} from './setupPointCloud'
 
 const WebGL = (): JSX.Element => {
   const canvasElement = useRef<HTMLCanvasElement>(null)
@@ -15,13 +15,13 @@ const WebGL = (): JSX.Element => {
       return
     }
 
-    // window.addEventListener('keydown', e => {
-    //   if (e.key === 'ArrowUp') {
-    //     aproximateCamera()
-    //   } else if (e.key === 'ArrowDown') {
-    //     distanceCamera()
-    //   }
-    // })
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp') {
+        aproximateCamera()
+      } else if (e.key === 'ArrowDown') {
+        distanceCamera()
+      }
+    })
 
     window.addEventListener('resize', () => resize(canvas))
 

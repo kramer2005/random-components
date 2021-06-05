@@ -49,9 +49,14 @@ const IshikawaCause = ({
         </Tooltip>
       </section>
       <div>
-        {node.children.map(el => (
+        {node.children.map((el, i) => (
           <div key={el.key}>
-            <IshikawaSubCause node={el} state={state} setState={setState} />
+            <IshikawaSubCause
+              node={el}
+              index={i}
+              state={state}
+              setState={setState}
+            />
           </div>
         ))}
       </div>
